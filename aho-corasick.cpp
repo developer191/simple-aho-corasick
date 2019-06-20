@@ -80,23 +80,23 @@ private:
         int idx;
         int state;
         string keyword;
-        states.push_back(*(new State(0)));
+        this->states.push_back(*(new State(0)));
         for (int i = 0; i < this->keywords.size(); i++)
         {
             keyword = this->keywords[i];
-            const char *chars = keyword.c_str();
+            const char *chars = this->keyword.c_str();
             state = 0;
             idx = 0;
-            while (idx < strlen(chars) && states[state].has_key(chars[idx]))
+            while (idx < strlen(chars) && this->states[state].has_key(chars[idx]))
             {
-                state = states[state].nexts[chars[idx]];
+                state = this->states[state].nexts[chars[idx]];
                 idx++;
             }
             for (int j = idx; j < strlen(chars); j++)
             {
                 cnt++;
-                states[state].regist_nextstate(chars[j], cnt);
-                states.push_back(*(new State(cnt)));
+                this->states[state].regist_nextstate(chars[j], cnt);
+                this->states.push_back(*(new State(cnt)));
                 state = cnt;
             }
             this->outputs[cnt].push_back(keyword);
@@ -107,22 +107,21 @@ private:
     void construct_failure_func()
     {
         queue<int> que;
-        int r, a;
-        int f, s;
-        int q;
+        int r, s;
+        char a;
         int state;
 
-        for (auto next = this->states[0].nexts.begin(); next != states[0].nexts.end(); ++next)
+        for (auto next = this->states[0].nexts.begin(); next != this->states[0].nexts.end(); ++next)
         {
             que.push(next->second);
-            failure[next->second] = 0;
+            this->failure[next->second] = 0;
         }
 
         while (!que.empty())
         {
             r = que.front();
             que.pop();
-            for (auto next = states[r].nexts.begin(); next != states[r].nexts.end(); ++next)
+            for (auto next = this->states[r].nexts.begin(); next != this->states[r].nexts.end(); ++next)
             {
                 a = next->first;
                 s = next->second;
@@ -130,11 +129,11 @@ private:
                 que.push(s);
                 if (r > 0)
                 {
-                    state = failure[r];
+                    state = this->failure[r];
 
                     while (g(state, a) == -1)
                     {
-                        state = failure[state];
+                        state = this->failure[state];
                     }
                     this->failure[s] = g(state, a);
                     auto words = this->outputs[this->failure[s]];
@@ -191,16 +190,16 @@ public:
             search_cnt++;
             while (g(state, chars[i]) == -1)
             {
-                state = failure[state];
+                state = this->failure[state];
                 search_cnt++;
             }
             state = g(state, chars[i]);
-            if (!outputs[state].empty())
+            if (!this->outputs[state].empty())
             {
                 col_len = 0;
-                for (int j = 0; j < outputs[state].size(); j++)
+                for (int j = 0; j < this->outputs[state].size(); j++)
                 {
-                    col_len = (outputs[state][j].length() > col_len) ? outputs[state][j].length() : col_len;
+                    col_len = (this->outputs[state][j].length() > col_len) ? this->outputs[state][j].length() : col_len;
                 }
                 match_places[i - col_len + 1].push_back(i);
             }
